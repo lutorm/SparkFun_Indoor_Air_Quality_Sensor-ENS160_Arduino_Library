@@ -19,7 +19,6 @@ bool QwDevENS160::init(void)
         return false;
 
     uniqueID = getUniqueID();
-
     if (uniqueID != ENS160_DEVICE_ID)
         return false;
 

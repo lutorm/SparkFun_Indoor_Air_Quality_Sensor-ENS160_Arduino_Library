@@ -58,7 +58,8 @@ const static uint16_t kChunkSize = kMaxTransferBuffer;
 namespace sfe_ENS160
 {
 
-QwI2C::QwI2C(void) : _i2cPort{nullptr}
+template <typename I2cType>
+QwI2C<I2cType>::QwI2C(void) : _i2cPort{nullptr}
 {
 }
 
@@ -68,9 +69,9 @@ QwI2C::QwI2C(void) : _i2cPort{nullptr}
 // Methods to init/setup this device. The caller can provide a Wire Port, or
 // this class will use the default
 
-bool QwI2C::init(TwoWire &wirePort, bool bInit)
+template <typename I2cType>
+bool QwI2C<I2cType>::init(I2cType &wirePort, bool bInit)
 {
-
     // if we don't have a wire port already
     if (!_i2cPort)
     {
@@ -88,19 +89,21 @@ bool QwI2C::init(TwoWire &wirePort, bool bInit)
 //
 // Methods to init/setup this device. The caller can provide a Wire Port, or
 // this class will use the default
-bool QwI2C::init()
+/*template <typename I2cType>
+bool QwI2C<I2cType>::init()
 {
     if (!_i2cPort)
-        return init(Wire);
+      return init(I2cDefault<I2cType>::default_bus);
     else
         return false;
 }
-
+*/
 //////////////////////////////////////////////////////////////////////////////////////////////////
 // ping()
 //
 // Is a device connected?
-bool QwI2C::ping(uint8_t i2c_address)
+template <typename I2cType>
+bool QwI2C<I2cType>::ping(uint8_t i2c_address)
 {
 
     if (!_i2cPort)
@@ -115,7 +118,8 @@ bool QwI2C::ping(uint8_t i2c_address)
 //
 // Write a byte to a register
 
-bool QwI2C::writeRegisterByte(uint8_t i2c_address, uint8_t offset, uint8_t dataToWrite)
+template <typename I2cType>
+bool QwI2C<I2cType>::writeRegisterByte(uint8_t i2c_address, uint8_t offset, uint8_t dataToWrite)
 {
 
     if (!_i2cPort)
@@ -132,7 +136,8 @@ bool QwI2C::writeRegisterByte(uint8_t i2c_address, uint8_t offset, uint8_t dataT
 //
 // Write a block of data to a device.
 
-int QwI2C::writeRegisterRegion(uint8_t i2c_address, uint8_t offset, const uint8_t *data, uint16_t length)
+template <typename I2cType>
+int QwI2C<I2cType>::writeRegisterRegion(uint8_t i2c_address, uint8_t offset, const uint8_t *data, uint16_t length)
 {
 
     _i2cPort->beginTransmission(i2c_address);
@@ -142,7 +147,8 @@ int QwI2C::writeRegisterRegion(uint8_t i2c_address, uint8_t offset, const uint8_
     return _i2cPort->endTransmission() ? -1 : 0; // -1 = error, 0 = success
 }
 
-int QwI2C::writeRegisterRegion(uint8_t i2c_address, uint8_t offset, uint8_t data, uint16_t length)
+template <typename I2cType>
+int QwI2C<I2cType>::writeRegisterRegion(uint8_t i2c_address, uint8_t offset, uint8_t data, uint16_t length)
 {
 
     _i2cPort->beginTransmission(i2c_address);
@@ -160,7 +166,8 @@ int QwI2C::writeRegisterRegion(uint8_t i2c_address, uint8_t offset, uint8_t data
 // For large buffers, the data is chuncked over KMaxI2CBufferLength at a time
 //
 //
-int QwI2C::readRegisterRegion(uint8_t addr, uint8_t reg, uint8_t *data, uint16_t numBytes)
+template <typename I2cType>
+int QwI2C<I2cType>::readRegisterRegion(uint8_t addr, uint8_t reg, uint8_t *data, uint16_t numBytes)
 {
     uint8_t nChunk;
     uint16_t nReturned;
@@ -208,6 +215,11 @@ int QwI2C::readRegisterRegion(uint8_t addr, uint8_t reg, uint8_t *data, uint16_t
     return 0; // Success
 }
 
+  template class QwI2C<TwoWire>;
+#ifdef QW_SOFTWAREWIRE
+  template class QwI2C<SoftwareWire>;
+#endif
+  
 //////////////////////////////////////////////////////////////////////////////////////////////////
 // Constructor
 //

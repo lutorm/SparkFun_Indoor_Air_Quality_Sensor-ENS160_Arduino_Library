@@ -46,6 +46,7 @@
 #include <Wire.h>
 #include <SPI.h>
 
+template <typename I2cType = TwoWire>
 class SparkFun_ENS160 : public QwDevENS160
 {
 
@@ -84,7 +85,7 @@ class SparkFun_ENS160 : public QwDevENS160
 
 		//Version 2:
     // User passes in an I2C object and an address (optional).
-    bool begin(TwoWire &wirePort, uint8_t deviceAddress = ENS160_ADDRESS_HIGH)
+    bool begin(I2cType &wirePort, uint8_t deviceAddress = ENS160_ADDRESS_HIGH)
     {
         // Setup  I2C object and pass into the superclass
         setCommunicationBus(_i2cBus, deviceAddress);
@@ -98,8 +99,8 @@ class SparkFun_ENS160 : public QwDevENS160
 
 	private: 
 
-		//I2C bus class
-		sfe_ENS160::QwI2C _i2cBus; 
+	//I2C bus class
+	sfe_ENS160::QwI2C<I2cType> _i2cBus; 
 
 };
 	
